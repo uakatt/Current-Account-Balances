@@ -1,0 +1,14 @@
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java	(revision 25269)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java	(revision 25270)
+@@ -233,7 +233,8 @@
+ 	    currentBalance.setCurrentBudget(KualiDecimal.ZERO);
+ 	} else {
+ 	    if (KFSConstants.PERIOD_CODE_CG_BEGINNING_BALANCE.equals(balanceTypeCode) && expenseObjectTypeCodes.contains(objectTypeCode)) {
+-		currentBalance.setCurrentBudget(add(currentBalance.getCurrentBudget(), accumulateMonthlyAmounts(balance, fiscalPeriod)));
++		currentBalance.setCurrentBudget(add(currentBalance.getCurrentBudget(),
++			add(accumulateMonthlyAmounts(balance, fiscalPeriod), accumulateMonthlyAmounts(balance, KFSConstants.PERIOD_CODE_CG_BEGINNING_BALANCE))));
+ 	    }
+ 	}
+ 	// Beginning Fund Balance (B)

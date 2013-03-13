@@ -1,0 +1,262 @@
+Index: work/src/arizona-ApplicationResources.properties
+===================================================================
+--- work/src/arizona-ApplicationResources.properties	(revision 24922)
++++ work/src/arizona-ApplicationResources.properties	(revision 24923)
+@@ -139,4 +139,4 @@
+ message.preq.duplicate.dv.invoice=Warning: A disbursement voucher for the specified invoice number and vendor already exists.  Do you want to continue?[br][br]Disbursement Voucher(s):{0}
+ 
+ #Current balance lookup by MSU
+-error.currentbalance.lookup.criteria.required = At least one lookup criteria [Account/Org/FO] is required.
+\ No newline at end of file
++error.currentbalance.lookup.criteria.required = At least one lookup criteria [Account/Org/FO/Supervisor] is required.
+\ No newline at end of file
+Index: work/src/edu/arizona/kfs/gl/businessobject/datadictionary/CurrentAccountBalance.xml
+===================================================================
+--- work/src/edu/arizona/kfs/gl/businessobject/datadictionary/CurrentAccountBalance.xml	(revision 24922)
++++ work/src/edu/arizona/kfs/gl/businessobject/datadictionary/CurrentAccountBalance.xml	(revision 24923)
+@@ -47,13 +47,17 @@
+ 		<ref bean="CurrentAccountBalance-beginningCurrentLiabilities" />
+ 		<ref bean="CurrentAccountBalance-totalIncome" />
+ 		<ref bean="CurrentAccountBalance-totalExpense" />
+-		<ref bean="CurrentAccountBalance-encumberances" />
++		<ref bean="CurrentAccountBalance-encumbrances" />
+ 		<ref bean="CurrentAccountBalance-budgetBalanceAvailable" />
+ 		<ref bean="CurrentAccountBalance-cashExpenditureAuthority" />
+ 		<ref bean="CurrentAccountBalance-currentFundBalance" />                      
+         
+         <ref bean="CurrentAccountBalance-dummyBusinessObject.consolidationOption"/>
+         <ref bean="CurrentAccountBalance-dummyBusinessObject.pendingEntryOption"/>
++        
++        <ref bean="CurrentAccountBalance-account.accountSupervisoryUser.principalName"/>
++        <ref bean="CurrentAccountBalance-account.accountSupervisoryUser.name"/>
++        
+       </list>
+    </property> 
+    <property name="relationships">
+@@ -95,7 +99,7 @@
+ 	</bean> 
+ 	
+   	<bean id="CurrentAccountBalance-account.chartOfAccountsCode" parent="CurrentAccountBalance-chartOfAccountsCode-parentBean">  	 
+-  		<property name="name" value="account.chartOfAccountsCode"/> 
++  		<property name="name" value="account.chartOfAccountsCode"/>
+   	</bean>		
+ 	
+   	<bean id="CurrentAccountBalance-account.accountNumber" parent="CurrentAccountBalance-accountNumber">  	 
+@@ -168,11 +172,11 @@
+ 	    <property name="label" value="Total Expense"/>
+ 	    <property name="shortLabel" value="Total Expense"/>
+ 	</bean>
+-	<bean id="CurrentAccountBalance-encumberances" parent="CurrentAccountBalance-encumberances-parentBean"/>
+-	<bean id="CurrentAccountBalance-encumberances-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
+-	    <property name="name" value="encumberances"/>
+-	    <property name="label" value="Encumberances"/>
+-	    <property name="shortLabel" value="Encumberances"/>
++	<bean id="CurrentAccountBalance-encumbrances" parent="CurrentAccountBalance-encumbrances-parentBean"/>
++	<bean id="CurrentAccountBalance-encumbrances-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
++	    <property name="name" value="encumbrances"/>
++	    <property name="label" value="Encumbrances"/>
++	    <property name="shortLabel" value="Encumbrances"/>
+ 	</bean>
+ 	<bean id="CurrentAccountBalance-budgetBalanceAvailable" parent="CurrentAccountBalance-budgetBalanceAvailable-parentBean"/>
+ 	<bean id="CurrentAccountBalance-budgetBalanceAvailable-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
+@@ -192,6 +196,17 @@
+ 	    <property name="label" value="Current Fund Balance"/>
+ 	    <property name="shortLabel" value="Fund Balance"/>
+ 	</bean>
++	
++	<bean id="CurrentAccountBalance-account.accountSupervisoryUser.principalName" parent="CurrentAccountBalance-account.accountSupervisoryUser.principalName-parentBean"/>
++	<bean id="CurrentAccountBalance-account.accountSupervisoryUser.principalName-parentBean" abstract="true" parent="Account-accountSupervisoryUser.principalName">
++		<property name="name" value="account.accountSupervisoryUser.principalName"/>
++	</bean> 
++	
++	<bean id="CurrentAccountBalance-account.accountSupervisoryUser.name" parent="CurrentAccountBalance-account.accountSupervisoryUser.name-parentBean"/>
++	
++	<bean id="CurrentAccountBalance-account.accountSupervisoryUser.name-parentBean" abstract="true" parent="Account-accountSupervisoryUser.name">
++	    <property name="name" value="account.accountSupervisoryUser.name"/>
++	</bean>	
+ 	  
+ <!-- Business Object Inquiry Definition -->
+ 
+@@ -248,12 +263,14 @@
+       <list>
+         <bean parent="FieldDefinition" p:required="true" p:attributeName="universityFiscalYear" p:treatWildcardsAndOperatorsAsLiteral="true" p:defaultValueFinderClass="org.kuali.kfs.sys.businessobject.defaultvalue.FiscalYearFinder"/>
+         <bean parent="FieldDefinition" p:required="true" p:attributeName="universityFiscalPeriodCode" p:treatWildcardsAndOperatorsAsLiteral="true" p:defaultValueFinderClass="org.kuali.kfs.gl.businessobject.options.PeriodCodeOptionFinder"/>
+-       	<bean parent="FieldDefinition" p:required="true" p:attributeName="account.chartOfAccountsCode" p:treatWildcardsAndOperatorsAsLiteral="true"/>
++       	<bean parent="FieldDefinition" p:required="false" p:attributeName="account.chartOfAccountsCode" p:treatWildcardsAndOperatorsAsLiteral="true"/>
+        	<bean parent="FieldDefinition" p:attributeName="account.accountNumber" p:treatWildcardsAndOperatorsAsLiteral="true"/>
+        	<bean parent="FieldDefinition" p:attributeName="subAccountNumber" p:treatWildcardsAndOperatorsAsLiteral="true"/>
+        	
+         <bean parent="FieldDefinition" p:attributeName="account.organizationCode" />
+         <bean parent="FieldDefinition" p:attributeName="account.accountFiscalOfficerUser.principalName" />
++        <bean parent="FieldDefinition" p:attributeName="account.accountSupervisoryUser.principalName" />
++        
+         <bean parent="FieldDefinition" p:attributeName="dummyBusinessObject.consolidationOption" p:defaultValueFinderClass="org.kuali.kfs.gl.businessobject.options.ConsolidationOptionFinder"/>
+         <bean parent="FieldDefinition" p:attributeName="dummyBusinessObject.pendingEntryOption" p:defaultValueFinderClass="org.kuali.kfs.gl.businessobject.options.PendingEntryOptionFinder"/>                
+       </list>
+@@ -274,7 +291,7 @@
+ 		<bean parent="FieldDefinition" p:attributeName="beginningCurrentLiabilities" />
+ 		<bean parent="FieldDefinition" p:attributeName="totalIncome" />
+ 		<bean parent="FieldDefinition" p:attributeName="totalExpense" />
+-		<bean parent="FieldDefinition" p:attributeName="encumberances" />
++		<bean parent="FieldDefinition" p:attributeName="encumbrances" />
+ 		<bean parent="FieldDefinition" p:attributeName="budgetBalanceAvailable" />
+ 		<bean parent="FieldDefinition" p:attributeName="cashExpenditureAuthority" />
+ 		<bean parent="FieldDefinition" p:attributeName="currentFundBalance" />
+Index: work/src/edu/arizona/kfs/gl/businessobject/CurrentAccountBalance.java
+===================================================================
+--- work/src/edu/arizona/kfs/gl/businessobject/CurrentAccountBalance.java	(revision 24922)
++++ work/src/edu/arizona/kfs/gl/businessobject/CurrentAccountBalance.java	(revision 24923)
+@@ -35,7 +35,7 @@
+     transient private KualiDecimal beginningCurrentLiabilities;
+     transient private KualiDecimal totalIncome;
+     transient private KualiDecimal totalExpense;
+-    transient private KualiDecimal encumberances;
++    transient private KualiDecimal encumbrances;
+     transient private KualiDecimal budgetBalanceAvailable;
+     transient private KualiDecimal cashExpenditureAuthority;
+     transient private KualiDecimal currentFundBalance;
+@@ -75,7 +75,7 @@
+         this.setBeginningCurrentLiabilities(KualiDecimal.ZERO);
+         this.setTotalIncome(KualiDecimal.ZERO);
+         this.setTotalExpense(KualiDecimal.ZERO);
+-        this.setEncumberances(KualiDecimal.ZERO);
++        this.setEncumbrances(KualiDecimal.ZERO);
+         this.setBudgetBalanceAvailable(KualiDecimal.ZERO);
+         this.setCashExpenditureAuthority(KualiDecimal.ZERO);
+         this.setCurrentFundBalance(KualiDecimal.ZERO);
+@@ -219,19 +219,19 @@
+     }
+ 
+     /**
+-     * Gets the encumberances attribute. 
+-     * @return Returns the encumberances.
++     * Gets the encumbrances attribute. 
++     * @return Returns the encumbrances.
+      */
+-    public KualiDecimal getEncumberances() {
+-        return encumberances;
++    public KualiDecimal getEncumbrances() {
++        return encumbrances;
+     }
+ 
+     /**
+-     * Sets the encumberances attribute value.
+-     * @param encumberances The encumberances to set.
++     * Sets the encumbrances attribute value.
++     * @param encumbrances The encumbrances to set.
+      */
+-    public void setEncumberances(KualiDecimal encumberances) {
+-        this.encumberances = encumberances;
++    public void setEncumbrances(KualiDecimal encumbrances) {
++        this.encumbrances = encumbrances;
+     }
+ 
+     /**
+Index: work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java
+===================================================================
+--- work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java	(revision 24922)
++++ work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java	(revision 24923)
+@@ -24,6 +24,7 @@
+ import org.apache.commons.lang.StringUtils;
+ import org.kuali.kfs.coa.businessobject.Account;
+ import org.kuali.kfs.coa.businessobject.AccountingPeriod;
++import org.kuali.kfs.coa.service.AccountService;
+ import org.kuali.kfs.coa.service.AccountingPeriodService;
+ import org.kuali.kfs.gl.Constant;
+ import org.kuali.kfs.gl.batch.service.BalanceCalculator;
+@@ -36,6 +37,7 @@
+ import org.kuali.kfs.sys.KFSPropertyConstants;
+ import org.kuali.kfs.sys.ObjectUtil;
+ import org.kuali.kfs.sys.businessobject.GeneralLedgerPendingEntry;
++import org.kuali.kfs.sys.context.SpringContext;
+ import org.kuali.rice.kim.bo.Person;
+ import org.kuali.rice.kim.service.PersonService;
+ import org.kuali.rice.kns.bo.BusinessObject;
+@@ -62,6 +64,8 @@
+     private final static String PRINCIPAL_NAME_KEY = KFSPropertyConstants.ACCOUNT + "." + KFSPropertyConstants.ACCOUNT_FISCAL_OFFICER_USER + "." + KFSPropertyConstants.PERSON_USER_ID;
+     private final static String ORGANIZATION_FIELD_KEY = KFSPropertyConstants.ACCOUNT + "." + KFSPropertyConstants.ORGANIZATION_CODE;
+     private final static String ACCOUNT_NUMBER_FIELD_KEY = KFSPropertyConstants.ACCOUNT + "." + KFSPropertyConstants.ACCOUNT_NUMBER;
++    private final static String SUPERVISOR_PRINCIPAL_NAME_KEY = KFSPropertyConstants.ACCOUNT + "." + KFSPropertyConstants.ACCOUNT_SUPERVISORY_USER + "." + KFSPropertyConstants.PERSON_USER_ID;
++    private final static String SUPERVISOR_PRINCIPAL_ID_KEY = KFSPropertyConstants.ACCOUNT + ".accountsSupervisorySystemsIdentifier";
+ 
+     private BalanceCalculator postBalance;
+     private BalanceService balanceService;
+@@ -125,7 +129,18 @@
+ 	    } else {
+ 		localFieldValues.put(PRINCIPAL_ID_KEY, principalName);
+ 	    }
++
+ 	}
++	String supervisorPrncplName = fieldValues.get(SUPERVISOR_PRINCIPAL_NAME_KEY);
++	if (StringUtils.isNotBlank(supervisorPrncplName)) {
++	    localFieldValues.remove(SUPERVISOR_PRINCIPAL_NAME_KEY);
++	    Person person = personService.getPersonByPrincipalName(supervisorPrncplName);
++	    if (ObjectUtils.isNotNull(person)) {
++		localFieldValues.put(SUPERVISOR_PRINCIPAL_ID_KEY, person.getPrincipalId());
++	    } else {
++		localFieldValues.put(SUPERVISOR_PRINCIPAL_ID_KEY, supervisorPrncplName);
++	    }
++	}
+ 
+ 	return localFieldValues;
+     }
+@@ -198,7 +213,7 @@
+ 		KFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.CURRENT_LIABILITY_OBJECT_CODE_PARAM);
+ 	List<String> incomeObjTypeCodes = this.getParameterService().getParameterValues(CurrentAccountBalance.class,
+ 		KFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.INCOME_OBJECT_TYPE_CODE_PARAM);
+-	List<String> encumberanceBalTypes = this.getParameterService().getParameterValues(CurrentAccountBalance.class,
++	List<String> encumbranceBalTypes = this.getParameterService().getParameterValues(CurrentAccountBalance.class,
+ 		KFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.ENCUMBRANCE_BALANCE_TYPE_PARAM);
+ 	List<String> aSlIfBObjectTypes = Arrays.asList(new String[] { "AS", "LI", "FB" });
+ 
+@@ -206,6 +221,11 @@
+ 	String objectTypeCode = balance.getObjectTypeCode();
+ 	String objectCode = balance.getObjectCode();
+ 	Account account = balance.getAccount();
++	if (ObjectUtils.isNull(account)) {
++	    account = SpringContext.getBean(AccountService.class).getByPrimaryId(balance.getChartOfAccountsCode(), balance.getAccountNumber());
++	    balance.setAccount(account);
++	    currentBalance.setAccount(account);
++	}
+ 	boolean isCashBdgtRecording = cashBudgetRecordLevelCodes.contains(account.getBudgetRecordingLevelCode());
+ 	currentBalance.setUniversityFiscalPeriodCode(fiscalPeriod);
+ 	// Current Budget (A)
+@@ -260,22 +280,22 @@
+ 	}
+ 
+ 	// Encumbrances (G)
+-	if (encumberanceBalTypes.contains(balanceTypeCode) && expenseObjectTypeCodes.contains(objectTypeCode) && incomeObjTypeCodes.contains(objectTypeCode)
++	if (encumbranceBalTypes.contains(balanceTypeCode) && (expenseObjectTypeCodes.contains(objectTypeCode) || incomeObjTypeCodes.contains(objectTypeCode))
+ 		&& !aSlIfBObjectTypes.contains(objectTypeCode)) {
+-	    currentBalance.setEncumberances(add(currentBalance.getEncumberances(), accumulateMonthlyAmounts(balance, fiscalPeriod)));
++	    currentBalance.setEncumbrances(add(currentBalance.getEncumbrances(), accumulateMonthlyAmounts(balance, fiscalPeriod)));
+ 	}
+ 
+ 	// Budget Balance Available (H)
+ 	if (isCashBdgtRecording) {
+ 	    currentBalance.setBudgetBalanceAvailable(KualiDecimal.ZERO);
+ 	} else {
+-	    currentBalance.setBudgetBalanceAvailable(currentBalance.getCurrentBudget().subtract(currentBalance.getTotalExpense()).subtract(currentBalance.getEncumberances()));
++	    currentBalance.setBudgetBalanceAvailable(currentBalance.getCurrentBudget().subtract(currentBalance.getTotalExpense()).subtract(currentBalance.getEncumbrances()));
+ 	}
+ 
+ 	// Cash Expenditure Authority (I)
+ 	if (isCashBdgtRecording) {
+-	    currentBalance.setBudgetBalanceAvailable(currentBalance.getBeginningCurrentAssets().subtract(currentBalance.getBeginningCurrentLiabilities()).add(currentBalance.getTotalIncome())
+-		    .subtract(currentBalance.getTotalExpense()).subtract(currentBalance.getEncumberances()));
++	    currentBalance.setCashExpenditureAuthority(currentBalance.getBeginningCurrentAssets().subtract(currentBalance.getBeginningCurrentLiabilities()).add(currentBalance.getTotalIncome())
++		    .subtract(currentBalance.getTotalExpense()).subtract(currentBalance.getEncumbrances()));
+ 	} else {
+ 	    currentBalance.setCashExpenditureAuthority(KualiDecimal.ZERO);
+ 	}
+@@ -309,8 +329,9 @@
+ 	String accountNumber = (String) fieldValues.get(ACCOUNT_NUMBER_FIELD_KEY);
+ 	String organizationCode = (String) fieldValues.get(ORGANIZATION_FIELD_KEY);
+ 	String fiscalOfficerPrincipalName = (String) fieldValues.get(PRINCIPAL_NAME_KEY);
++	String supervisorPrincipalName = (String) fieldValues.get(SUPERVISOR_PRINCIPAL_NAME_KEY);
+ 
+-	if (StringUtils.isBlank(accountNumber) && StringUtils.isBlank(organizationCode) && StringUtils.isBlank(fiscalOfficerPrincipalName)) {
++	if (StringUtils.isBlank(accountNumber) && StringUtils.isBlank(organizationCode) && StringUtils.isBlank(fiscalOfficerPrincipalName) && StringUtils.isBlank(supervisorPrincipalName)) {
+ 	    GlobalVariables.getMessageMap().putError(KFSPropertyConstants.ACCOUNT_NUMBER, GLKeyConstants.ERROR_CURRBALANCE_LOOKUP_CRITERIA_REQD);
+ 	    throw new ValidationException("errors in search criteria");
+ 	}

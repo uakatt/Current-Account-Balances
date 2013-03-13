@@ -1,0 +1,13 @@
+Index: financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java	(revision 24824)
++++ financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java	(revision 24825)
+@@ -207,7 +207,7 @@
+ 	String objectCode = balance.getObjectCode();
+ 	Account account = balance.getAccount();
+ 	boolean isCashBdgtRecording = cashBudgetRecordLevelCodes.contains(account.getBudgetRecordingLevelCode());
+-
++	currentBalance.setUniversityFiscalPeriodCode(fiscalPeriod);
+ 	// Current Budget (A)
+ 	if (isCashBdgtRecording) {
+ 	    currentBalance.setCurrentBudget(KualiDecimal.ZERO);

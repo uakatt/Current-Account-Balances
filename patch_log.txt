@@ -1,0 +1,85 @@
+------------------------------------------------------------------------
+r24806 | ummerh@CATNET.ARIZONA.EDU | 2012-03-18 18:09:50 -0700 (Sun, 18 Mar 2012) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/arizona-ApplicationResources.properties
+   A /financial-system/kfs/trunk/work/src/edu/msu
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/GLKeyConstants.java
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/CurrentAccountBalance.java
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/datadictionary
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/datadictionary/CurrentAccountBalance.xml
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/lookup
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/BalanceDao.java
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/EncumbranceDao.java
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/TrialBalanceDao.java
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/BalanceDaoOjb.java
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/EncumbranceDaoOjb.java
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/TrialBalanceDaoJdbc.java
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/msu-spring-gl.xml
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/sys
+   A /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/sys/MSUKFSParameterKeyConstants.java
+   M /financial-system/kfs/trunk/work/web-root/WEB-INF/tags/portal/channel/main/balanceInquiries.tag
+
+KFSI-6468 MOD - Implement the Simple Balances Screen
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r24824 | ummerh@CATNET.ARIZONA.EDU | 2012-03-20 03:53:00 -0700 (Tue, 20 Mar 2012) | 2 lines
+Changed paths:
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/GLKeyConstants.java (from /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/GLKeyConstants.java:24806)
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/CurrentAccountBalance.java (from /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/CurrentAccountBalance.java:24806)
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/datadictionary/CurrentAccountBalance.xml (from /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/datadictionary/CurrentAccountBalance.xml:24806)
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java (from /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java:24806)
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/dataaccess/BalanceDao.java (from /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/BalanceDao.java:24806)
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/dataaccess/EncumbranceDao.java (from /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/EncumbranceDao.java:24806)
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/dataaccess/TrialBalanceDao.java (from /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/TrialBalanceDao.java:24806)
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/dataaccess/impl/BalanceDaoOjb.java (from /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/BalanceDaoOjb.java:24806)
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/dataaccess/impl/EncumbranceDaoOjb.java (from /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/EncumbranceDaoOjb.java:24806)
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/dataaccess/impl/TrialBalanceDaoJdbc.java (from /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/TrialBalanceDaoJdbc.java:24806)
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/spring-gl.xml
+   A /financial-system/kfs/trunk/work/src/edu/arizona/kfs/sys/KFSParameterKeyConstants.java (from /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/sys/MSUKFSParameterKeyConstants.java:24806)
+   D /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/GLKeyConstants.java
+   D /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/CurrentAccountBalance.java
+   D /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/datadictionary
+   D /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/lookup
+   D /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/BalanceDao.java
+   D /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/EncumbranceDao.java
+   D /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/TrialBalanceDao.java
+   D /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl
+   D /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/msu-spring-gl.xml
+   D /financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/sys
+   M /financial-system/kfs/trunk/work/web-root/WEB-INF/tags/portal/channel/main/balanceInquiries.tag
+
+KFSI-6468 MOD - Implement the Simple Balances Screen
+Repackaging into edu.arizona
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r24825 | ummerh@CATNET.ARIZONA.EDU | 2012-03-20 03:56:10 -0700 (Tue, 20 Mar 2012) | 2 lines
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java
+
+KFSI-6468 MOD - Implement the Simple Balances Screen
+Repackaging into edu.arizona
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r24923 | ummerh@CATNET.ARIZONA.EDU | 2012-03-22 04:33:05 -0700 (Thu, 22 Mar 2012) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/arizona-ApplicationResources.properties
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/CurrentAccountBalance.java
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/datadictionary/CurrentAccountBalance.xml
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java
+
+KFSI-6468 MOD - Implement the Simple Balances Screen - Bug fixes.
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+r25270 | ummerh@CATNET.ARIZONA.EDU | 2012-04-15 15:10:10 -0700 (Sun, 15 Apr 2012) | 1 line
+Changed paths:
+   M /financial-system/kfs/trunk/work/src/edu/arizona/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java
+
+
+------------------------------------------------------------------------

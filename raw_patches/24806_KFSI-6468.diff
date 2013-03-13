@@ -1,0 +1,1537 @@
+Index: financial-system/kfs/trunk/work/src/arizona-ApplicationResources.properties
+===================================================================
+--- financial-system/kfs/trunk/work/src/arizona-ApplicationResources.properties	(revision 24805)
++++ financial-system/kfs/trunk/work/src/arizona-ApplicationResources.properties	(revision 24806)
+@@ -133,4 +133,7 @@
+ # Effort Reporting - redefining message for KFSI-5616/KITT-3017
+ error.effort.totalPayrollAmountOverchanged=Salary column total does not match Original Salary column total. Adjust before submitting.
+ 
+-error.po.not.fully.received.and.invoiced=PO indicates receiving is required and it is not fully received and invoiced, so cannot be closed.
+\ No newline at end of file
++error.po.not.fully.received.and.invoiced=PO indicates receiving is required and it is not fully received and invoiced, so cannot be closed.
++
++#Current balance lookup by MSU
++error.currentbalance.lookup.criteria.required = At least one lookup criteria [Account/Org/FO] is required.
+\ No newline at end of file
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/datadictionary/CurrentAccountBalance.xml
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/datadictionary/CurrentAccountBalance.xml	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/datadictionary/CurrentAccountBalance.xml	(revision 24806)
+@@ -0,0 +1,284 @@
++<?xml version="1.0" encoding="UTF-8"?><beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p" xmlns:dd="http://rice.kuali.org/dd" xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://rice.kuali.org/dd http://rice.kuali.org/dd/dd.xsd">
++<!--
++ Copyright 2006-2009 The Kuali Foundation
++ 
++ Licensed under the Educational Community License, Version 2.0 (the "License");
++ you may not use this file except in compliance with the License.
++ You may obtain a copy of the License at
++ 
++ http://www.opensource.org/licenses/ecl2.php
++ 
++ Unless required by applicable law or agreed to in writing, software
++ distributed under the License is distributed on an "AS IS" BASIS,
++ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ See the License for the specific language governing permissions and
++ limitations under the License.
++-->
++<!--AER-0630 - Rq_GL_630 add a simple balance inquiry menu item to KFS main menu-->
++  <bean id="CurrentAccountBalance" parent="CurrentAccountBalance-parentBean"/>
++
++  <bean id="CurrentAccountBalance-parentBean" abstract="true" parent="BusinessObjectEntry">
++    <property name="businessObjectClass" value="edu.msu.ebsp.kfs.gl.businessobject.CurrentAccountBalance"/>
++    <property name="inquiryDefinition">
++      <ref bean="CurrentAccountBalance-inquiryDefinition"/>
++    </property>
++    <property name="lookupDefinition">
++      <ref bean="CurrentAccountBalance-lookupDefinition"/>
++    </property>
++    <property name="objectLabel" value="Current Account Balance"/>
++    <property name="attributes">
++      <list>
++        <ref bean="CurrentAccountBalance-universityFiscalYear"/>
++        <ref bean="CurrentAccountBalance-universityFiscalPeriodCode"/>
++        <ref bean="CurrentAccountBalance-chartOfAccountsCode"/>
++        <ref bean="CurrentAccountBalance-account.chartOfAccountsCode"/>
++        
++        <ref bean="CurrentAccountBalance-account.accountNumber"/>
++        <ref bean="CurrentAccountBalance-account.organizationCode"/>
++        <ref bean="CurrentAccountBalance-account.accountFiscalOfficerUser.principalName"/>
++        <ref bean="CurrentAccountBalance-account.accountFiscalOfficerUser.name"/>
++        
++        <ref bean="CurrentAccountBalance-accountNumber"/>
++        <ref bean="CurrentAccountBalance-subAccountNumber"/>
++        
++        <ref bean="CurrentAccountBalance-currentBudget" />
++		<ref bean="CurrentAccountBalance-beginningFundBalance" />
++		<ref bean="CurrentAccountBalance-beginningCurrentAssets" />
++		<ref bean="CurrentAccountBalance-beginningCurrentLiabilities" />
++		<ref bean="CurrentAccountBalance-totalIncome" />
++		<ref bean="CurrentAccountBalance-totalExpense" />
++		<ref bean="CurrentAccountBalance-encumberances" />
++		<ref bean="CurrentAccountBalance-budgetBalanceAvailable" />
++		<ref bean="CurrentAccountBalance-cashExpenditureAuthority" />
++		<ref bean="CurrentAccountBalance-currentFundBalance" />                      
++        
++        <ref bean="CurrentAccountBalance-dummyBusinessObject.consolidationOption"/>
++        <ref bean="CurrentAccountBalance-dummyBusinessObject.pendingEntryOption"/>
++      </list>
++   </property> 
++   <property name="relationships">
++	   <list>
++	        <dd:relationship objectAttribute="account.accountFiscalOfficerUser">
++	            <dd:primitiveAttribute source="account.accountFiscalOfficerSystemIdentifier" target="principalId"/>
++	            <dd:supportAttribute source="account.accountFiscalOfficerUser.principalName" target="principalName" identifier="true"/>
++	            <dd:supportAttribute source="account.accountFiscalOfficerUser.name" target="name"/>           
++	        </dd:relationship>
++	        
++	        <dd:relationship objectAttribute="accountingPeriod">
++		        <dd:primitiveAttribute source="universityFiscalYear" target="universityFiscalYear"/>
++		        <dd:primitiveAttribute source="universityFiscalPeriodCode" target="universityFiscalPeriodCode"/>            
++		    </dd:relationship>
++        </list> 
++    </property> 
++  </bean>
++
++<!-- Attribute Definitions -->
++	<bean id="CurrentAccountBalance-universityFiscalYear" parent="CurrentAccountBalance-universityFiscalYear-parentBean"/>
++	<bean id="CurrentAccountBalance-universityFiscalYear-parentBean" abstract="true" parent="Balance-universityFiscalYear">
++	    <property name="name" value="universityFiscalYear"/>
++	    <property name="label" value="Fiscal Year"/>
++	    <property name="shortLabel" value="Fiscal Year"/>
++	</bean>
++ 
++	
++	  
++  	<bean id="CurrentAccountBalance-universityFiscalPeriodCode" parent="CurrentAccountBalance-universityFiscalPeriodCode-parentBean"/>
++ 	<bean id="CurrentAccountBalance-universityFiscalPeriodCode-parentBean" abstract="true" parent="GenericAttributes-universityFiscalAccountingPeriod">
++	    <property name="name" value="universityFiscalPeriodCode"/>
++	    <property name="label" value="Fiscal Period"/>
++	    <property name="shortLabel" value="Fiscal Period"/>   
++  	</bean>
++ 
++	<bean id="CurrentAccountBalance-chartOfAccountsCode" parent="CurrentAccountBalance-chartOfAccountsCode-parentBean"/>
++	<bean id="CurrentAccountBalance-chartOfAccountsCode-parentBean" abstract="true" parent="Chart-chartOfAccountsCode">
++		<property name="forceUppercase" value="true"/>
++	</bean> 
++	
++  	<bean id="CurrentAccountBalance-account.chartOfAccountsCode" parent="CurrentAccountBalance-chartOfAccountsCode-parentBean">  	 
++  		<property name="name" value="account.chartOfAccountsCode"/> 
++  	</bean>		
++	
++  	<bean id="CurrentAccountBalance-account.accountNumber" parent="CurrentAccountBalance-accountNumber">  	 
++  		<property name="name" value="account.accountNumber"/> 
++  	</bean>	
++	
++	<bean id="CurrentAccountBalance-accountNumber" parent="CurrentAccountBalance-accountNumber-parentBean"/>
++	<bean id="CurrentAccountBalance-accountNumber-parentBean" abstract="true" parent="Account-accountNumber">
++		<property name="forceUppercase" value="true"/>
++	</bean>
++
++	<bean id="CurrentAccountBalance-subAccountNumber" parent="CurrentAccountBalance-subAccountNumber-parentBean"/>
++	<bean id="CurrentAccountBalance-subAccountNumber-parentBean" abstract="true" parent="Balance-subAccountNumber-parentBean">
++		<property name="forceUppercase" value="true"/>
++	</bean>
++
++	<bean id="CurrentAccountBalance-account.organizationCode" parent="CurrentAccountBalance-account.organizationCode-parentBean"/>
++	<bean id="CurrentAccountBalance-account.organizationCode-parentBean" abstract="true" parent="Organization-organizationCode">
++		<property name="name" value="account.organizationCode"/>
++	</bean>   
++  
++	<bean id="CurrentAccountBalance-account.accountFiscalOfficerUser.principalName" parent="CurrentAccountBalance-account.accountFiscalOfficerUser.principalName-parentBean"/>
++	<bean id="CurrentAccountBalance-account.accountFiscalOfficerUser.principalName-parentBean" abstract="true" parent="Account-accountFiscalOfficerUser.principalName">
++		<property name="name" value="account.accountFiscalOfficerUser.principalName"/>
++	</bean> 
++	
++	<bean id="CurrentAccountBalance-account.accountFiscalOfficerUser.name" parent="CurrentAccountBalance-account.accountFiscalOfficerUser.name-parentBean"/>
++	
++	<bean id="CurrentAccountBalance-account.accountFiscalOfficerUser.name-parentBean" abstract="true" parent="Account-accountFiscalOfficerUser.name">
++	    <property name="name" value="account.accountFiscalOfficerUser.name"/>
++	</bean>	
++	
++	<bean id="CurrentAccountBalance-dummyBusinessObject.consolidationOption" parent="Balance-dummyBusinessObject.consolidationOption"/>
++	
++	<bean id="CurrentAccountBalance-dummyBusinessObject.pendingEntryOption" parent="Balance-dummyBusinessObject.pendingEntryOption"/>
++	
++	<bean id="CurrentAccountBalance-currentBudget" parent="CurrentAccountBalance-currentBudget-parentBean"/>
++	<bean id="CurrentAccountBalance-currentBudget-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
++	    <property name="name" value="currentBudget"/>
++	    <property name="label" value="Current Budget"/>
++	    <property name="shortLabel" value="Current Budget"/>
++	</bean>
++	<bean id="CurrentAccountBalance-beginningFundBalance" parent="CurrentAccountBalance-beginningFundBalance-parentBean"/>
++	<bean id="CurrentAccountBalance-beginningFundBalance-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
++	    <property name="name" value="beginningFundBalance"/>
++	    <property name="label" value="Beginning Fund Balance"/>
++	    <property name="shortLabel" value="Fund Balance"/>
++	</bean>
++	<bean id="CurrentAccountBalance-beginningCurrentAssets" parent="CurrentAccountBalance-beginningCurrentAssets-parentBean"/>
++	<bean id="CurrentAccountBalance-beginningCurrentAssets-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
++	    <property name="name" value="beginningCurrentAssets"/>
++	    <property name="label" value="Beginning Current Assets"/>
++	    <property name="shortLabel" value="Current Assets"/>
++	</bean>
++	<bean id="CurrentAccountBalance-beginningCurrentLiabilities" parent="CurrentAccountBalance-beginningCurrentLiabilities-parentBean"/>
++	<bean id="CurrentAccountBalance-beginningCurrentLiabilities-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
++	    <property name="name" value="beginningCurrentLiabilities"/>
++	    <property name="label" value="Beginning Current Liabilities"/>
++	    <property name="shortLabel" value="Current Liabilities"/>
++	</bean>
++	<bean id="CurrentAccountBalance-totalIncome" parent="CurrentAccountBalance-totalIncome-parentBean"/>
++	<bean id="CurrentAccountBalance-totalIncome-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
++	    <property name="name" value="totalIncome"/>
++	    <property name="label" value="Total Income"/>
++	    <property name="shortLabel" value="Total Income"/>
++	</bean>
++	<bean id="CurrentAccountBalance-totalExpense" parent="CurrentAccountBalance-totalExpense-parentBean"/>
++	<bean id="CurrentAccountBalance-totalExpense-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
++	    <property name="name" value="totalExpense"/>
++	    <property name="label" value="Total Expense"/>
++	    <property name="shortLabel" value="Total Expense"/>
++	</bean>
++	<bean id="CurrentAccountBalance-encumberances" parent="CurrentAccountBalance-encumberances-parentBean"/>
++	<bean id="CurrentAccountBalance-encumberances-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
++	    <property name="name" value="encumberances"/>
++	    <property name="label" value="Encumberances"/>
++	    <property name="shortLabel" value="Encumberances"/>
++	</bean>
++	<bean id="CurrentAccountBalance-budgetBalanceAvailable" parent="CurrentAccountBalance-budgetBalanceAvailable-parentBean"/>
++	<bean id="CurrentAccountBalance-budgetBalanceAvailable-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
++	    <property name="name" value="budgetBalanceAvailable"/>
++	    <property name="label" value="Budget Available Balance"/>
++	    <property name="shortLabel" value="Budget Available Balance"/>
++	</bean>
++	<bean id="CurrentAccountBalance-cashExpenditureAuthority" parent="CurrentAccountBalance-cashExpenditureAuthority-parentBean"/>
++	<bean id="CurrentAccountBalance-cashExpenditureAuthority-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
++	    <property name="name" value="cashExpenditureAuthority"/>
++	    <property name="label" value="Cash Expenditure Authority"/>
++	    <property name="shortLabel" value="Cash Expenditure Authority"/>
++	</bean>
++	<bean id="CurrentAccountBalance-currentFundBalance" parent="CurrentAccountBalance-currentFundBalance-parentBean"/>
++	<bean id="CurrentAccountBalance-currentFundBalance-parentBean" abstract="true" parent="Balance-dummyBusinessObject.genericAmount">
++	    <property name="name" value="currentFundBalance"/>
++	    <property name="label" value="Current Fund Balance"/>
++	    <property name="shortLabel" value="Fund Balance"/>
++	</bean>
++	  
++<!-- Business Object Inquiry Definition -->
++
++
++  <bean id="CurrentAccountBalance-inquiryDefinition" parent="CurrentAccountBalance-inquiryDefinition-parentBean"/>
++
++  <bean id="CurrentAccountBalance-inquiryDefinition-parentBean" abstract="true" parent="InquiryDefinition">
++    <property name="title" value="Simple Balance Inquiry Lookup"/>
++    <property name="inquirySections">
++      <list>
++        <bean parent="InquirySectionDefinition">
++          <property name="title" value=""/>
++          <property name="numberOfColumns" value="1"/>
++          <property name="inquiryFields">
++            <list>
++              <bean parent="FieldDefinition" p:attributeName="universityFiscalYear"/>
++              <bean parent="FieldDefinition" p:attributeName="universityFiscalPeriodCode"/>
++              <bean parent="FieldDefinition" p:attributeName="chartOfAccountsCode"/>
++              <bean parent="FieldDefinition" p:attributeName="accountNumber"/>
++              <bean parent="FieldDefinition" p:attributeName="subAccountNumber"/>
++              
++              <bean parent="FieldDefinition" p:attributeName="account.organizationCode"/>
++              <bean parent="FieldDefinition" p:attributeName="account.accountFiscalOfficerUser.principalName" />
++             </list>
++          </property>
++        </bean>
++      </list>
++    </property>
++  </bean>
++
++<!-- Business Object Lookup Definition -->
++
++
++  <bean id="CurrentAccountBalance-lookupDefinition" parent="CurrentAccountBalance-lookupDefinition-parentBean"/>
++
++  <bean id="CurrentAccountBalance-lookupDefinition-parentBean" abstract="true" parent="LookupDefinition">
++    <property name="title" value="Current Account Balance"/>
++    <property name="lookupableID" value="glCurrentAccountBalanceLookupable"/>
++    
++    <property name="defaultSort">
++      <bean parent="SortDefinition">
++	      <property name="attributeNames">
++	          <list>
++	            <value>accountNumber</value>
++	            <value>subAccountNumber</value>
++	            
++	            <value>account.organizationCode</value>
++	            <value>account.accountFiscalOfficerUser.principalName</value>
++	          </list>
++	      </property>
++      </bean>
++    </property>
++    <property name="lookupFields">
++      <list>
++        <bean parent="FieldDefinition" p:required="true" p:attributeName="universityFiscalYear" p:treatWildcardsAndOperatorsAsLiteral="true" p:defaultValueFinderClass="org.kuali.kfs.sys.businessobject.defaultvalue.FiscalYearFinder"/>
++        <bean parent="FieldDefinition" p:required="true" p:attributeName="universityFiscalPeriodCode" p:treatWildcardsAndOperatorsAsLiteral="true" p:defaultValueFinderClass="org.kuali.kfs.gl.businessobject.options.PeriodCodeOptionFinder"/>
++       	<bean parent="FieldDefinition" p:required="true" p:attributeName="account.chartOfAccountsCode" p:treatWildcardsAndOperatorsAsLiteral="true"/>
++       	<bean parent="FieldDefinition" p:attributeName="account.accountNumber" p:treatWildcardsAndOperatorsAsLiteral="true"/>
++       	<bean parent="FieldDefinition" p:attributeName="subAccountNumber" p:treatWildcardsAndOperatorsAsLiteral="true"/>
++       	
++        <bean parent="FieldDefinition" p:attributeName="account.organizationCode" />
++        <bean parent="FieldDefinition" p:attributeName="account.accountFiscalOfficerUser.principalName" />
++        <bean parent="FieldDefinition" p:attributeName="dummyBusinessObject.consolidationOption" p:defaultValueFinderClass="org.kuali.kfs.gl.businessobject.options.ConsolidationOptionFinder"/>
++        <bean parent="FieldDefinition" p:attributeName="dummyBusinessObject.pendingEntryOption" p:defaultValueFinderClass="org.kuali.kfs.gl.businessobject.options.PendingEntryOptionFinder"/>                
++      </list>
++    </property>
++    <property name="resultFields">
++      <list>
++      	<bean parent="FieldDefinition" p:attributeName="universityFiscalYear"/>
++      	<bean parent="FieldDefinition" p:attributeName="universityFiscalPeriodCode"/>
++       	<bean parent="FieldDefinition" p:attributeName="account.chartOfAccountsCode"/>      	
++        <bean parent="FieldDefinition" p:attributeName="account.accountNumber"/>
++        <bean parent="FieldDefinition" p:attributeName="subAccountNumber"/>
++        <bean parent="FieldDefinition" p:attributeName="account.organizationCode" />
++        <bean parent="FieldDefinition" p:attributeName="account.accountFiscalOfficerUser.name" />
++        
++		<bean parent="FieldDefinition" p:attributeName="currentBudget" />
++		<bean parent="FieldDefinition" p:attributeName="beginningFundBalance" />
++		<bean parent="FieldDefinition" p:attributeName="beginningCurrentAssets" />
++		<bean parent="FieldDefinition" p:attributeName="beginningCurrentLiabilities" />
++		<bean parent="FieldDefinition" p:attributeName="totalIncome" />
++		<bean parent="FieldDefinition" p:attributeName="totalExpense" />
++		<bean parent="FieldDefinition" p:attributeName="encumberances" />
++		<bean parent="FieldDefinition" p:attributeName="budgetBalanceAvailable" />
++		<bean parent="FieldDefinition" p:attributeName="cashExpenditureAuthority" />
++		<bean parent="FieldDefinition" p:attributeName="currentFundBalance" />
++       </list>
++    </property>
++  </bean>
++</beans>
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/CurrentAccountBalance.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/CurrentAccountBalance.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/CurrentAccountBalance.java	(revision 24806)
+@@ -0,0 +1,284 @@
++/*
++ * Copyright 2006 The Kuali Foundation
++ * 
++ * Licensed under the Educational Community License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl2.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.msu.ebsp.kfs.gl.businessobject;
++
++import org.kuali.kfs.coa.businessobject.AccountingPeriod;
++import org.kuali.kfs.gl.businessobject.Balance;
++import org.kuali.rice.kns.util.KualiDecimal;
++
++/**
++ * AER-0630 - Rq_GL_630 add a simple balance inquiry menu item to KFS main menu An extension of KualiLookupableImpl to support
++ * account balance lookups
++ */
++public class CurrentAccountBalance extends Balance {
++
++    transient private String universityFiscalPeriodCode;
++    transient private AccountingPeriod accountingPeriod;
++
++    //Adding new columns based on UA requirements
++    transient private KualiDecimal currentBudget;
++    transient private KualiDecimal beginningFundBalance;
++    transient private KualiDecimal beginningCurrentAssets;
++    transient private KualiDecimal beginningCurrentLiabilities;
++    transient private KualiDecimal totalIncome;
++    transient private KualiDecimal totalExpense;
++    transient private KualiDecimal encumberances;
++    transient private KualiDecimal budgetBalanceAvailable;
++    transient private KualiDecimal cashExpenditureAuthority;
++    transient private KualiDecimal currentFundBalance;
++
++    /**
++     * Constructs a CurrentAccountBalance.java.
++     */
++    public CurrentAccountBalance() {
++        super();
++        this.resetAmounts();
++    }
++
++    /**
++     * reset all amounts to zero
++     */
++    public void resetAmounts() {
++        this.setAccountLineAnnualBalanceAmount(KualiDecimal.ZERO);
++        this.setBeginningBalanceLineAmount(KualiDecimal.ZERO);
++        this.setContractsGrantsBeginningBalanceAmount(KualiDecimal.ZERO);
++        this.setMonth1Amount(KualiDecimal.ZERO);
++        this.setMonth2Amount(KualiDecimal.ZERO);
++        this.setMonth3Amount(KualiDecimal.ZERO);
++        this.setMonth4Amount(KualiDecimal.ZERO);
++        this.setMonth5Amount(KualiDecimal.ZERO);
++        this.setMonth6Amount(KualiDecimal.ZERO);
++        this.setMonth7Amount(KualiDecimal.ZERO);
++        this.setMonth8Amount(KualiDecimal.ZERO);
++        this.setMonth9Amount(KualiDecimal.ZERO);
++        this.setMonth10Amount(KualiDecimal.ZERO);
++        this.setMonth11Amount(KualiDecimal.ZERO);
++        this.setMonth12Amount(KualiDecimal.ZERO);
++        this.setMonth13Amount(KualiDecimal.ZERO);
++        //transient columns
++        this.setCurrentBudget(KualiDecimal.ZERO);
++        this.setBeginningFundBalance(KualiDecimal.ZERO);
++        this.setBeginningCurrentAssets(KualiDecimal.ZERO);
++        this.setBeginningCurrentLiabilities(KualiDecimal.ZERO);
++        this.setTotalIncome(KualiDecimal.ZERO);
++        this.setTotalExpense(KualiDecimal.ZERO);
++        this.setEncumberances(KualiDecimal.ZERO);
++        this.setBudgetBalanceAvailable(KualiDecimal.ZERO);
++        this.setCashExpenditureAuthority(KualiDecimal.ZERO);
++        this.setCurrentFundBalance(KualiDecimal.ZERO);
++
++    }
++
++    /**
++     * Gets the universityFiscalPeriodCode attribute.
++     * 
++     * @return Returns the universityFiscalPeriodCode.
++     */
++    public String getUniversityFiscalPeriodCode() {
++        return universityFiscalPeriodCode;
++    }
++
++    /**
++     * Sets the universityFiscalPeriodCode attribute value.
++     * 
++     * @param universityFiscalPeriodCode The universityFiscalPeriodCode to set.
++     */
++    public void setUniversityFiscalPeriodCode(String universityFiscalPeriodCode) {
++        this.universityFiscalPeriodCode = universityFiscalPeriodCode;
++    }
++
++    /**
++     * Gets the accountingPeriod attribute.
++     * 
++     * @return Returns the accountingPeriod.
++     */
++    public AccountingPeriod getAccountingPeriod() {
++        return accountingPeriod;
++    }
++
++    /**
++     * Sets the accountingPeriod attribute value.
++     * 
++     * @param accountingPeriod The accountingPeriod to set.
++     */
++    public void setAccountingPeriod(AccountingPeriod accountingPeriod) {
++        this.accountingPeriod = accountingPeriod;
++    }
++
++    /**
++     * Gets the totalIncome attribute.
++     * 
++     * @return Returns the totalIncome.
++     */
++    public KualiDecimal getTotalIncome() {
++        return totalIncome;
++    }
++
++    /**
++     * Sets the totalIncome attribute value.
++     * 
++     * @param totalIncome The totalIncome to set.
++     */
++    public void setTotalIncome(KualiDecimal totalIncome) {
++        this.totalIncome = totalIncome;
++    }
++
++    /**
++     * Gets the totalExpense attribute.
++     * 
++     * @return Returns the totalExpense.
++     */
++    public KualiDecimal getTotalExpense() {
++        return totalExpense;
++    }
++
++    /**
++     * Sets the totalExpense attribute value.
++     * 
++     * @param totalExpense The totalExpense to set.
++     */
++    public void setTotalExpense(KualiDecimal totalExpense) {
++        this.totalExpense = totalExpense;
++    }
++
++    /**
++     * Gets the currentBudget attribute. 
++     * @return Returns the currentBudget.
++     */
++    public KualiDecimal getCurrentBudget() {
++        return currentBudget;
++    }
++
++    /**
++     * Sets the currentBudget attribute value.
++     * @param currentBudget The currentBudget to set.
++     */
++    public void setCurrentBudget(KualiDecimal currentBudget) {
++        this.currentBudget = currentBudget;
++    }
++
++    /**
++     * Gets the beginningFundBalance attribute. 
++     * @return Returns the beginningFundBalance.
++     */
++    public KualiDecimal getBeginningFundBalance() {
++        return beginningFundBalance;
++    }
++
++    /**
++     * Sets the beginningFundBalance attribute value.
++     * @param beginningFundBalance The beginningFundBalance to set.
++     */
++    public void setBeginningFundBalance(KualiDecimal beginningFundBalance) {
++        this.beginningFundBalance = beginningFundBalance;
++    }
++
++    /**
++     * Gets the beginningCurrentAssets attribute. 
++     * @return Returns the beginningCurrentAssets.
++     */
++    public KualiDecimal getBeginningCurrentAssets() {
++        return beginningCurrentAssets;
++    }
++
++    /**
++     * Sets the beginningCurrentAssets attribute value.
++     * @param beginningCurrentAssets The beginningCurrentAssets to set.
++     */
++    public void setBeginningCurrentAssets(KualiDecimal beginningCurrentAssets) {
++        this.beginningCurrentAssets = beginningCurrentAssets;
++    }
++
++    /**
++     * Gets the beginningCurrentLiabilities attribute. 
++     * @return Returns the beginningCurrentLiabilities.
++     */
++    public KualiDecimal getBeginningCurrentLiabilities() {
++        return beginningCurrentLiabilities;
++    }
++
++    /**
++     * Sets the beginningCurrentLiabilities attribute value.
++     * @param beginningCurrentLiabilities The beginningCurrentLiabilities to set.
++     */
++    public void setBeginningCurrentLiabilities(KualiDecimal beginningCurrentLiabilities) {
++        this.beginningCurrentLiabilities = beginningCurrentLiabilities;
++    }
++
++    /**
++     * Gets the encumberances attribute. 
++     * @return Returns the encumberances.
++     */
++    public KualiDecimal getEncumberances() {
++        return encumberances;
++    }
++
++    /**
++     * Sets the encumberances attribute value.
++     * @param encumberances The encumberances to set.
++     */
++    public void setEncumberances(KualiDecimal encumberances) {
++        this.encumberances = encumberances;
++    }
++
++    /**
++     * Gets the budgetBalanceAvailable attribute. 
++     * @return Returns the budgetBalanceAvailable.
++     */
++    public KualiDecimal getBudgetBalanceAvailable() {
++        return budgetBalanceAvailable;
++    }
++
++    /**
++     * Sets the budgetBalanceAvailable attribute value.
++     * @param budgetBalanceAvailable The budgetBalanceAvailable to set.
++     */
++    public void setBudgetBalanceAvailable(KualiDecimal budgetBalanceAvailable) {
++        this.budgetBalanceAvailable = budgetBalanceAvailable;
++    }
++
++    /**
++     * Gets the cashExpenditureAuthority attribute. 
++     * @return Returns the cashExpenditureAuthority.
++     */
++    public KualiDecimal getCashExpenditureAuthority() {
++        return cashExpenditureAuthority;
++    }
++
++    /**
++     * Sets the cashExpenditureAuthority attribute value.
++     * @param cashExpenditureAuthority The cashExpenditureAuthority to set.
++     */
++    public void setCashExpenditureAuthority(KualiDecimal cashExpenditureAuthority) {
++        this.cashExpenditureAuthority = cashExpenditureAuthority;
++    }
++
++    /**
++     * Gets the currentFundBalance attribute. 
++     * @return Returns the currentFundBalance.
++     */
++    public KualiDecimal getCurrentFundBalance() {
++        return currentFundBalance;
++    }
++
++    /**
++     * Sets the currentFundBalance attribute value.
++     * @param currentFundBalance The currentFundBalance to set.
++     */
++    public void setCurrentFundBalance(KualiDecimal currentFundBalance) {
++        this.currentFundBalance = currentFundBalance;
++    }
++}
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/businessobject/lookup/CurrentAccountBalanceLookupableHelperServiceImpl.java	(revision 24806)
+@@ -0,0 +1,508 @@
++/*
++ * Copyright 2006 The Kuali Foundation
++ * 
++ * Licensed under the Educational Community License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl2.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.msu.ebsp.kfs.gl.businessobject.lookup;
++
++import java.util.Collection;
++import java.util.HashMap;
++import java.util.Iterator;
++import java.util.List;
++import java.util.Map;
++
++import org.apache.commons.lang.StringUtils;
++import org.kuali.kfs.coa.businessobject.Account;
++import org.kuali.kfs.coa.businessobject.AccountingPeriod;
++import org.kuali.kfs.coa.service.AccountingPeriodService;
++import org.kuali.kfs.gl.Constant;
++import org.kuali.kfs.gl.batch.service.BalanceCalculator;
++import org.kuali.kfs.gl.businessobject.Balance;
++import org.kuali.kfs.gl.businessobject.lookup.AbstractGeneralLedgerLookupableHelperServiceImpl;
++import org.kuali.kfs.gl.businessobject.lookup.BusinessObjectFieldConverter;
++import org.kuali.kfs.gl.service.BalanceService;
++import org.kuali.kfs.sys.KFSConstants;
++import org.kuali.kfs.sys.KFSKeyConstants;
++import org.kuali.kfs.sys.KFSPropertyConstants;
++import org.kuali.kfs.sys.ObjectUtil;
++import org.kuali.kfs.sys.businessobject.GeneralLedgerPendingEntry;
++import org.kuali.rice.kim.bo.Person;
++import org.kuali.rice.kim.service.PersonService;
++import org.kuali.rice.kns.bo.BusinessObject;
++import org.kuali.rice.kns.exception.ValidationException;
++import org.kuali.rice.kns.lookup.HtmlData;
++import org.kuali.rice.kns.util.GlobalVariables;
++import org.kuali.rice.kns.util.KualiDecimal;
++import org.kuali.rice.kns.util.ObjectUtils;
++
++import edu.emory.mathcs.backport.java.util.Arrays;
++import edu.msu.ebsp.kfs.gl.GLKeyConstants;
++import edu.msu.ebsp.kfs.gl.businessobject.CurrentAccountBalance;
++import edu.msu.ebsp.kfs.sys.MSUKFSParameterKeyConstants;
++
++/**
++ * AER-0630 - Rq_GL_630 add a simple balance inquiry menu item to KFS main menu
++ * An extension of KualiLookupableImpl to support account balance lookups
++ */
++public class CurrentAccountBalanceLookupableHelperServiceImpl extends AbstractGeneralLedgerLookupableHelperServiceImpl {
++
++    private final static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(CurrentAccountBalanceLookupableHelperServiceImpl.class);
++
++    private final static String PRINCIPAL_ID_KEY = KFSPropertyConstants.ACCOUNT + "." + KFSPropertyConstants.ACCOUNT_FISCAL_OFFICER_SYSTEM_IDENTIFIER;
++    private final static String PRINCIPAL_NAME_KEY = KFSPropertyConstants.ACCOUNT + "." + KFSPropertyConstants.ACCOUNT_FISCAL_OFFICER_USER + "." + KFSPropertyConstants.PERSON_USER_ID;
++    private final static String ORGANIZATION_FIELD_KEY = KFSPropertyConstants.ACCOUNT + "." + KFSPropertyConstants.ORGANIZATION_CODE;
++    private final static String ACCOUNT_NUMBER_FIELD_KEY = KFSPropertyConstants.ACCOUNT + "." + KFSPropertyConstants.ACCOUNT_NUMBER;
++
++    private BalanceCalculator postBalance;
++    private BalanceService balanceService;
++    private PersonService<Person> personService;
++    private AccountingPeriodService accountingPeriodService;
++
++    /**
++     * @see org.kuali.rice.kns.lookup.AbstractLookupableHelperServiceImpl#getInquiryUrl(org.kuali.rice.kns.bo.BusinessObject,
++     *      java.lang.String)
++     */
++    @Override
++    public HtmlData getInquiryUrl(BusinessObject bo, String propertyName) {
++
++	if (StringUtils.equals(propertyName, KFSPropertyConstants.SUB_ACCOUNT_NUMBER)) {
++	    String subAccountNumber = (String) ObjectUtils.getPropertyValue(bo, propertyName);
++	    if (StringUtils.equals(Constant.CONSOLIDATED_SUB_ACCOUNT_NUMBER, subAccountNumber)) {
++		return super.getEmptyAnchorHtmlData();
++	    }
++	}
++
++	return super.getInquiryUrl(bo, propertyName);
++    }
++
++    /**
++     * @see org.kuali.rice.kns.lookup.AbstractLookupableHelperServiceImpl#getSearchResults(java.util.Map)
++     */
++    @Override
++    public List getSearchResults(Map fieldValues) {
++	setBackLocation((String) fieldValues.get(KFSConstants.BACK_LOCATION));
++	setDocFormKey((String) fieldValues.get(KFSConstants.DOC_FORM_KEY));
++
++	// get the pending entry option. This method must be prior to the get
++	// search results
++	String pendingEntryOption = this.getSelectedPendingEntryOption(fieldValues);
++
++	// test if the consolidation option is selected or not
++	boolean isConsolidated = isConsolidationSelected(fieldValues);
++
++	Map<String, String> localFieldValues = this.getLocalFieldValues(fieldValues);
++
++	Collection<CurrentAccountBalance> searchResultsCollection = this.buildCurrentBalanceCollection(localFieldValues, isConsolidated, pendingEntryOption);
++	LOG.info("searchResultsCollection.size(): " + searchResultsCollection.size());
++
++	return this.buildSearchResultList(searchResultsCollection, Long.valueOf(searchResultsCollection.size()));
++    }
++
++    /**
++     * clear up the search criteria
++     */
++    protected Map<String, String> getLocalFieldValues(Map<String, String> fieldValues) {
++	Map<String, String> localFieldValues = new HashMap<String, String>();
++	localFieldValues.putAll(fieldValues);
++
++	String principalName = fieldValues.get(PRINCIPAL_NAME_KEY);
++	if (StringUtils.isNotBlank(principalName)) {
++	    localFieldValues.remove(PRINCIPAL_NAME_KEY);
++
++	    Person person = personService.getPersonByPrincipalName(principalName);
++	    if (ObjectUtils.isNotNull(person)) {
++		localFieldValues.put(PRINCIPAL_ID_KEY, person.getPrincipalId());
++	    } else {
++		localFieldValues.put(PRINCIPAL_ID_KEY, principalName);
++	    }
++	}
++
++	return localFieldValues;
++    }
++
++    /**
++     * build a search result list based on the given criteria
++     */
++    protected Collection<CurrentAccountBalance> buildCurrentBalanceCollection(Map<String, String> fieldValues, boolean isConsolidated, String pendingEntryOption) {
++	String fiscalPeriod = fieldValues.get(KFSPropertyConstants.UNIVERSITY_FISCAL_PERIOD_CODE);
++
++	Map<String, CurrentAccountBalance> balanceMap = new HashMap<String, CurrentAccountBalance>();
++
++	Collection<Balance> balances = this.getQualifiedBalances(fieldValues, pendingEntryOption);
++
++	for (Balance balance : balances) {
++	    if (StringUtils.isBlank(balance.getSubAccountNumber())) {
++		balance.setSubAccountNumber(KFSConstants.getDashSubAccountNumber());
++	    }
++
++	    String key = balance.getAccountNumber();
++	    if (!isConsolidated) {
++		key = key + ":" + balance.getSubAccountNumber();
++	    }
++
++	    if (balanceMap.containsKey(key)) {
++		CurrentAccountBalance currentBalance = balanceMap.get(key);
++		this.updateCurrentBalance(currentBalance, balance, fiscalPeriod);
++	    } else {
++		CurrentAccountBalance currentBalance = new CurrentAccountBalance();
++		ObjectUtil.buildObject(currentBalance, balance);
++		currentBalance.resetAmounts();
++
++		this.updateCurrentBalance(currentBalance, balance, fiscalPeriod);
++		balanceMap.put(key, currentBalance);
++	    }
++	}
++
++	Collection<CurrentAccountBalance> currentBalanceList = balanceMap.values();
++
++	return currentBalanceList;
++    }
++
++    /**
++     * get qualified balances. If pending entries are needed, they can be
++     * included.
++     */
++    protected Collection<Balance> getQualifiedBalances(Map<String, String> fieldValues, String pendingEntryOption) {
++	boolean isConsolidated = false;
++
++	Collection<Balance> balanceList = this.getLookupService().findCollectionBySearchUnbounded(Balance.class, fieldValues);
++
++	updateByPendingLedgerEntry(balanceList, fieldValues, pendingEntryOption, isConsolidated, false);
++
++	return balanceList;
++    }
++
++    /**
++     * update current balance with the given balance for the specified period
++     */
++    protected void updateCurrentBalance(CurrentAccountBalance currentBalance, Balance balance, String fiscalPeriod) {
++	List<String> cashBudgetRecordLevelCodes = this.getParameterService().getParameterValues(CurrentAccountBalance.class,
++		MSUKFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.CASH_BUDGET_RECORD_LEVEL_PARM);
++	List<String> expenseObjectTypeCodes = this.getParameterService().getParameterValues(CurrentAccountBalance.class,
++		MSUKFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.EXPENSE_OBJECT_TYPE_CODE_PARAM);
++	List<String> fundBalanceObjCodes = this.getParameterService().getParameterValues(CurrentAccountBalance.class,
++		MSUKFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.FUND_BALANCE_OBJECT_CODE_PARAM);
++	List<String> currentAssetObjCodes = this.getParameterService().getParameterValues(CurrentAccountBalance.class,
++		MSUKFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.CURRENT_ASSET_OBJECT_CODE_PARAM);
++	List<String> currentLiabilityObjCodes = this.getParameterService().getParameterValues(CurrentAccountBalance.class,
++		MSUKFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.CURRENT_LIABILITY_OBJECT_CODE_PARAM);
++	List<String> incomeObjTypeCodes = this.getParameterService().getParameterValues(CurrentAccountBalance.class,
++		MSUKFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.INCOME_OBJECT_TYPE_CODE_PARAM);
++	List<String> encumberanceBalTypes = this.getParameterService().getParameterValues(CurrentAccountBalance.class,
++		MSUKFSParameterKeyConstants.GeneralLedgerSysParmeterKeys.ENCUMBRANCE_BALANCE_TYPE_PARAM);
++	List<String> aSlIfBObjectTypes = Arrays.asList(new String[] { "AS", "LI", "FB" });
++
++	String balanceTypeCode = balance.getBalanceTypeCode();
++	String objectTypeCode = balance.getObjectTypeCode();
++	String objectCode = balance.getObjectCode();
++	Account account = balance.getAccount();
++	boolean isCashBdgtRecording = cashBudgetRecordLevelCodes.contains(account.getBudgetRecordingLevelCode());
++
++	// Current Budget (A)
++	if (isCashBdgtRecording) {
++	    currentBalance.setCurrentBudget(KualiDecimal.ZERO);
++	} else {
++	    if (KFSConstants.PERIOD_CODE_CG_BEGINNING_BALANCE.equals(balanceTypeCode) && expenseObjectTypeCodes.contains(objectTypeCode)) {
++		currentBalance.setCurrentBudget(add(currentBalance.getCurrentBudget(), accumulateMonthlyAmounts(balance, fiscalPeriod)));
++	    }
++	}
++	// Beginning Fund Balance (B)
++	if (isCashBdgtRecording) {
++	    if (fundBalanceObjCodes.contains(objectCode)) {
++		currentBalance.setBeginningFundBalance(add(currentBalance.getBeginningFundBalance(), accumulateMonthlyAmounts(balance, KFSConstants.PERIOD_CODE_BEGINNING_BALANCE)));
++	    }
++	} else {
++	    currentBalance.setBeginningFundBalance(KualiDecimal.ZERO);
++	}
++
++	// Beginning Current Assets (C)
++	if (isCashBdgtRecording) {
++	    if (currentAssetObjCodes.contains(objectCode)) {
++		currentBalance.setBeginningCurrentAssets(add(currentBalance.getBeginningCurrentAssets(), accumulateMonthlyAmounts(balance, KFSConstants.PERIOD_CODE_BEGINNING_BALANCE)));
++	    }
++	} else {
++	    currentBalance.setBeginningCurrentAssets(KualiDecimal.ZERO);
++	}
++
++	// Beginning Current Liabilities (D)
++	if (isCashBdgtRecording) {
++	    if (currentLiabilityObjCodes.contains(objectCode)) {
++		currentBalance.setBeginningCurrentLiabilities(add(currentBalance.getBeginningCurrentLiabilities(), accumulateMonthlyAmounts(balance, KFSConstants.PERIOD_CODE_BEGINNING_BALANCE)));
++	    }
++	} else {
++	    currentBalance.setBeginningCurrentLiabilities(KualiDecimal.ZERO);
++	}
++
++	// Total Income (E)
++	if (isCashBdgtRecording) {
++	    if (incomeObjTypeCodes.contains(objectTypeCode) && KFSConstants.BALANCE_TYPE_ACTUAL.equals(balanceTypeCode)) {
++		currentBalance.setTotalIncome(add(currentBalance.getTotalIncome(), accumulateMonthlyAmounts(balance, fiscalPeriod)));
++		currentBalance.setTotalIncome(add(currentBalance.getTotalIncome(), accumulateMonthlyAmounts(balance, KFSConstants.PERIOD_CODE_CG_BEGINNING_BALANCE)));
++	    }
++	} else {
++	    currentBalance.setTotalIncome(KualiDecimal.ZERO);
++	}
++
++	// Total Expense (F)
++	if (expenseObjectTypeCodes.contains(objectTypeCode) && KFSConstants.BALANCE_TYPE_ACTUAL.equals(balanceTypeCode)) {
++	    currentBalance.setTotalExpense(add(currentBalance.getTotalExpense(), accumulateMonthlyAmounts(balance, fiscalPeriod)));
++	    currentBalance.setTotalExpense(add(currentBalance.getTotalExpense(), accumulateMonthlyAmounts(balance, KFSConstants.PERIOD_CODE_CG_BEGINNING_BALANCE)));
++	}
++
++	// Encumbrances (G)
++	if (encumberanceBalTypes.contains(balanceTypeCode) && expenseObjectTypeCodes.contains(objectTypeCode) && incomeObjTypeCodes.contains(objectTypeCode)
++		&& !aSlIfBObjectTypes.contains(objectTypeCode)) {
++	    currentBalance.setEncumberances(add(currentBalance.getEncumberances(), accumulateMonthlyAmounts(balance, fiscalPeriod)));
++	}
++
++	// Budget Balance Available (H)
++	if (isCashBdgtRecording) {
++	    currentBalance.setBudgetBalanceAvailable(KualiDecimal.ZERO);
++	} else {
++	    currentBalance.setBudgetBalanceAvailable(currentBalance.getCurrentBudget().subtract(currentBalance.getTotalExpense()).subtract(currentBalance.getEncumberances()));
++	}
++
++	// Cash Expenditure Authority (I)
++	if (isCashBdgtRecording) {
++	    currentBalance.setBudgetBalanceAvailable(currentBalance.getBeginningCurrentAssets().subtract(currentBalance.getBeginningCurrentLiabilities()).add(currentBalance.getTotalIncome())
++		    .subtract(currentBalance.getTotalExpense()).subtract(currentBalance.getEncumberances()));
++	} else {
++	    currentBalance.setCashExpenditureAuthority(KualiDecimal.ZERO);
++	}
++	// Current Fund Balance (J)
++	if (isCashBdgtRecording) {
++	    currentBalance.setCurrentFundBalance(currentBalance.getBeginningFundBalance().add(currentBalance.getTotalIncome()).subtract(currentBalance.getTotalExpense()));
++	} else {
++	    currentBalance.setCurrentFundBalance(KualiDecimal.ZERO);
++	}
++
++    }
++
++    /**
++     * @see org.kuali.rice.kns.lookup.AbstractLookupableHelperServiceImpl#validateSearchParameters(java.util.Map)
++     */
++    @Override
++    public void validateSearchParameters(Map fieldValues) {
++	super.validateSearchParameters(fieldValues);
++
++	Integer fiscalYear = 0;
++	String valueFiscalYear = (String) fieldValues.get(KFSPropertyConstants.UNIVERSITY_FISCAL_YEAR);
++	if (!StringUtils.isEmpty(valueFiscalYear)) {
++	    try {
++		fiscalYear = Integer.parseInt(valueFiscalYear);
++	    } catch (NumberFormatException e) {
++		GlobalVariables.getMessageMap().putError(KFSPropertyConstants.UNIVERSITY_FISCAL_YEAR, KFSKeyConstants.PendingEntryLookupableImpl.FISCAL_YEAR_FOUR_DIGIT);
++		throw new ValidationException("errors in search criteria");
++	    }
++	}
++
++	String accountNumber = (String) fieldValues.get(ACCOUNT_NUMBER_FIELD_KEY);
++	String organizationCode = (String) fieldValues.get(ORGANIZATION_FIELD_KEY);
++	String fiscalOfficerPrincipalName = (String) fieldValues.get(PRINCIPAL_NAME_KEY);
++
++	if (StringUtils.isBlank(accountNumber) && StringUtils.isBlank(organizationCode) && StringUtils.isBlank(fiscalOfficerPrincipalName)) {
++	    GlobalVariables.getMessageMap().putError(KFSPropertyConstants.ACCOUNT_NUMBER, GLKeyConstants.ERROR_CURRBALANCE_LOOKUP_CRITERIA_REQD);
++	    throw new ValidationException("errors in search criteria");
++	}
++
++	String fiscalPeriod = (String) fieldValues.get(KFSPropertyConstants.UNIVERSITY_FISCAL_PERIOD_CODE);
++	AccountingPeriod accountingPeriod = accountingPeriodService.getByPeriod(fiscalPeriod, fiscalYear);
++	if (ObjectUtils.isNull(accountingPeriod)) {
++	    GlobalVariables.getMessageMap().putError(KFSPropertyConstants.UNIVERSITY_FISCAL_PERIOD_CODE, KFSKeyConstants.ERROR_ACCOUNTING_PERIOD_NOT_FOUND);
++	    throw new ValidationException("errors in search criteria");
++	}
++    }
++
++    /**
++     * accumulate monthly amount up to the given period
++     */
++    public KualiDecimal accumulateMonthlyAmounts(Balance balance, String fiscalPeriodCode) {
++
++	KualiDecimal beginningAmount = balance.getBeginningBalanceLineAmount();
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.PERIOD_CODE_BEGINNING_BALANCE)) {
++	    return beginningAmount;
++	}
++
++	KualiDecimal CGBeginningAmount = balance.getContractsGrantsBeginningBalanceAmount();
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.PERIOD_CODE_CG_BEGINNING_BALANCE)) {
++	    return CGBeginningAmount;
++	}
++
++	KualiDecimal month0Amount = beginningAmount;
++	KualiDecimal month1Amount = add(balance.getMonth1Amount(), month0Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH1)) {
++	    return month1Amount;
++	}
++
++	KualiDecimal month2Amount = add(balance.getMonth2Amount(), month1Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH2)) {
++	    return month2Amount;
++	}
++
++	KualiDecimal month3Amount = add(balance.getMonth3Amount(), month2Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH3)) {
++	    return month3Amount;
++	}
++
++	KualiDecimal month4Amount = add(balance.getMonth4Amount(), month3Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH4)) {
++	    return month4Amount;
++	}
++
++	KualiDecimal month5Amount = add(balance.getMonth5Amount(), month4Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH5)) {
++	    return month5Amount;
++	}
++
++	KualiDecimal month6Amount = add(balance.getMonth6Amount(), month5Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH6)) {
++	    return month6Amount;
++	}
++
++	KualiDecimal month7Amount = add(balance.getMonth7Amount(), month6Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH7)) {
++	    return month7Amount;
++	}
++
++	KualiDecimal month8Amount = add(balance.getMonth8Amount(), month7Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH8)) {
++	    return month8Amount;
++	}
++
++	KualiDecimal month9Amount = add(balance.getMonth9Amount(), month8Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH9)) {
++	    return month9Amount;
++	}
++
++	KualiDecimal month10Amount = add(balance.getMonth10Amount(), month9Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH10)) {
++	    return month10Amount;
++	}
++
++	KualiDecimal month11Amount = add(balance.getMonth11Amount(), month10Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH11)) {
++	    return month11Amount;
++	}
++
++	KualiDecimal month12Amount = add(balance.getMonth12Amount(), month11Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH12)) {
++	    return month12Amount;
++	}
++
++	KualiDecimal month13Amount = add(balance.getMonth13Amount(), month12Amount);
++	if (StringUtils.equals(fiscalPeriodCode, KFSConstants.MONTH13)) {
++	    return month13Amount;
++	}
++
++	return balance.getAccountLineAnnualBalanceAmount();
++    }
++
++    /**
++     * check null and add up the two given amounts
++     */
++    protected KualiDecimal add(KualiDecimal augend, KualiDecimal addend) {
++	KualiDecimal first = augend == null ? KualiDecimal.ZERO : augend;
++	KualiDecimal second = addend == null ? KualiDecimal.ZERO : addend;
++
++	return first.add(second);
++    }
++
++    /**
++     * @see org.kuali.kfs.gl.businessobject.lookup.AbstractGeneralLedgerLookupableHelperServiceImpl#updateEntryCollection(java.util.Collection,
++     *      java.util.Map, boolean, boolean, boolean)
++     */
++    protected void updateEntryCollection(Collection entryCollection, Map fieldValues, boolean isApproved, boolean isConsolidated, boolean isCostShareInclusive) {
++
++	// convert the field names of balance object into corresponding ones of
++	// pending entry object
++	Map pendingEntryFieldValues = BusinessObjectFieldConverter.convertToTransactionFieldValues(fieldValues);
++	pendingEntryFieldValues.remove(KFSPropertyConstants.UNIVERSITY_FISCAL_PERIOD_CODE);
++
++	// go through the pending entries to update the balance collection
++	Iterator<GeneralLedgerPendingEntry> pendingEntryIterator = getGeneralLedgerPendingEntryService().findPendingLedgerEntriesForBalance(pendingEntryFieldValues, isApproved);
++	while (pendingEntryIterator.hasNext()) {
++	    GeneralLedgerPendingEntry pendingEntry = pendingEntryIterator.next();
++
++	    Balance balance = this.getPostBalance().findBalance(entryCollection, pendingEntry);
++
++	    this.getPostBalance().updateBalance(pendingEntry, balance);
++	}
++    }
++
++    /**
++     * Sets the balanceService attribute value.
++     * 
++     * @param balanceService
++     *            The balanceService to set.
++     */
++    public void setBalanceService(BalanceService balanceService) {
++	this.balanceService = balanceService;
++    }
++
++    /**
++     * Gets the personService attribute.
++     * 
++     * @return Returns the personService.
++     */
++    public PersonService<Person> getPersonService() {
++	return personService;
++    }
++
++    /**
++     * Sets the personService attribute value.
++     * 
++     * @param personService
++     *            The personService to set.
++     */
++    public void setPersonService(PersonService<Person> personService) {
++	this.personService = personService;
++    }
++
++    /**
++     * Gets the postBalance attribute.
++     * 
++     * @return Returns the postBalance.
++     */
++    public BalanceCalculator getPostBalance() {
++	return postBalance;
++    }
++
++    /**
++     * Sets the postBalance attribute value.
++     * 
++     * @param postBalance
++     *            The postBalance to set.
++     */
++    public void setPostBalance(BalanceCalculator postBalance) {
++	this.postBalance = postBalance;
++    }
++
++    /**
++     * Gets the accountingPeriodService attribute.
++     * 
++     * @return Returns the accountingPeriodService.
++     */
++    public AccountingPeriodService getAccountingPeriodService() {
++	return accountingPeriodService;
++    }
++
++    /**
++     * Sets the accountingPeriodService attribute value.
++     * 
++     * @param accountingPeriodService
++     *            The accountingPeriodService to set.
++     */
++    public void setAccountingPeriodService(AccountingPeriodService accountingPeriodService) {
++	this.accountingPeriodService = accountingPeriodService;
++    }
++}
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/msu-spring-gl.xml
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/msu-spring-gl.xml	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/msu-spring-gl.xml	(revision 24806)
+@@ -0,0 +1,58 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++ Copyright 2005-2007 The Kuali Foundation.
++
++ Licensed under the Educational Community License, Version 1.0 (the "License");
++ you may not use this file except in compliance with the License.
++ You may obtain a copy of the License at
++ 
++ http://www.opensource.org/licenses/ecl1.php
++ 
++ Unless required by applicable law or agreed to in writing, software
++ distributed under the License is distributed on an "AS IS" BASIS,
++ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ See the License for the specific language governing permissions and
++ limitations under the License.
++-->
++<beans xmlns="http://www.springframework.org/schema/beans"
++	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
++	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
++       xsi:schemaLocation="http://www.springframework.org/schema/beans
++                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
++                           http://www.springframework.org/schema/tx
++                           http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
++                           http://www.springframework.org/schema/aop
++                           http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
++
++    <bean id="glModuleConfiguration" parent="glModuleConfiguration-parentBean">
++        <property name="packagePrefixes">
++            <list merge="true">
++                <value>edu.msu.ebsp.kfs.gl</value>
++            </list>
++        </property>
++		<property name="dataDictionaryPackages">
++			<list merge="true">
++                <value>edu/msu/ebsp/kfs/gl/businessobject/datadictionary</value>
++			</list>
++		</property>       
++    </bean>  
++    
++    <!-- AER-0630 - Rq_GL_630 add a simple balance inquiry menu item to KFS main menu-->
++    <bean id="glCurrentAccountBalanceLookupableHelperService" class="edu.msu.ebsp.kfs.gl.businessobject.lookup.CurrentAccountBalanceLookupableHelperServiceImpl" scope="prototype">
++		<property name="personService" ref="personService" />
++		<property name="balanceService" ref="glBalanceService" />
++		<property name="parameterService" ref="parameterService" />
++		
++		<property name="generalLedgerPendingEntryService" ref="generalLedgerPendingEntryService" />
++		<property name="postBalance" ref="glPostBalance" />
++		<property name="accountingPeriodService" ref="accountingPeriodService"/>
++		
++		<property name="lookupService" ref="lookupService" />				
++	</bean>
++	
++	<bean id="glCurrentAccountBalanceLookupable" class="org.kuali.rice.kns.lookup.KualiLookupableImpl" scope="prototype">
++		<property name="lookupableHelperService">
++			<ref bean="glCurrentAccountBalanceLookupableHelperService" />
++		</property>
++	</bean>
++</beans>
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/GLKeyConstants.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/GLKeyConstants.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/GLKeyConstants.java	(revision 24806)
+@@ -0,0 +1,20 @@
++/*
++ * Copyright 2012 The Kuali Foundation.
++ * 
++ * Licensed under the Educational Community License, Version 1.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl1.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.msu.ebsp.kfs.gl;
++
++public class GLKeyConstants {
++    public static String ERROR_CURRBALANCE_LOOKUP_CRITERIA_REQD = "error.currentbalance.lookup.criteria.required";
++}
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/EncumbranceDaoOjb.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/EncumbranceDaoOjb.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/EncumbranceDaoOjb.java	(revision 24806)
+@@ -0,0 +1,57 @@
++/*
++ * Copyright 2005-2006 The Kuali Foundation
++ * 
++ * Licensed under the Educational Community License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl2.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.msu.ebsp.kfs.gl.dataaccess.impl;
++
++import java.util.Collection;
++import java.util.Iterator;
++import java.util.Map;
++
++import org.apache.ojb.broker.query.Criteria;
++import org.apache.ojb.broker.query.QueryFactory;
++import org.apache.ojb.broker.query.ReportQueryByCriteria;
++import org.kuali.kfs.gl.businessobject.Encumbrance;
++import org.kuali.kfs.sys.KFSPropertyConstants;
++import org.kuali.rice.kns.util.KualiDecimal;
++import org.kuali.rice.kns.util.TransactionalServiceUtils;
++
++/**
++ * An OJB implementation of the EncumbranceDao
++ */
++public class EncumbranceDaoOjb extends org.kuali.kfs.gl.dataaccess.impl.EncumbranceDaoOjb implements edu.msu.ebsp.kfs.gl.dataaccess.EncumbranceDao {
++    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(EncumbranceDaoOjb.class);
++
++    public KualiDecimal getEncumbrances(Map<String, String> input, Collection encumbranceCodes) {
++	Criteria criteria = new Criteria();
++	KualiDecimal encumbrances = KualiDecimal.ZERO;
++	for (String key : input.keySet()) {
++	    criteria.addEqualTo(key, input.get(key));
++	}
++	criteria.addIn(KFSPropertyConstants.BALANCE_TYPE_CODE, encumbranceCodes);
++	ReportQueryByCriteria queryByCriteria = QueryFactory.newReportQuery(Encumbrance.class, new String[] { "sum(accountLineEncumbranceAmount)" }, criteria, false);
++
++	Iterator iterator = getPersistenceBrokerTemplate().getReportQueryIteratorByQuery(queryByCriteria);
++
++	if (iterator.hasNext()) {
++	    Object[] data = (Object[]) TransactionalServiceUtils.retrieveFirstAndExhaustIterator(iterator);
++	    if (data[0] != null) {
++		encumbrances = (KualiDecimal) data[0];
++	    }
++	}
++	return encumbrances;
++
++    }
++
++}
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/BalanceDaoOjb.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/BalanceDaoOjb.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/BalanceDaoOjb.java	(revision 24806)
+@@ -0,0 +1,53 @@
++/*
++ * Copyright 2005 The Kuali Foundation
++ * 
++ * Licensed under the Educational Community License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl2.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.msu.ebsp.kfs.gl.dataaccess.impl;
++
++import java.util.Collection;
++import java.util.Map;
++
++import org.apache.ojb.broker.query.Criteria;
++import org.apache.ojb.broker.query.QueryFactory;
++import org.kuali.kfs.gl.businessobject.Balance;
++import org.kuali.kfs.sys.KFSPropertyConstants;
++
++
++/**
++ * An OJB implementation of BalanceDao
++ */
++public class BalanceDaoOjb extends org.kuali.kfs.gl.dataaccess.impl.BalanceDaoOjb implements edu.msu.ebsp.kfs.gl.dataaccess.BalanceDao {
++
++    public Collection<Balance> getAccountBalance(Map<String, String> input) {
++        Criteria criteria = new Criteria();
++       for(String key:input.keySet()){
++           criteria.addEqualTo(key, input.get(key));
++       }
++        
++        Collection<Balance> balance = getPersistenceBrokerTemplate().getCollectionByQuery(QueryFactory.newQuery(Balance.class, criteria));
++        return balance;
++        
++    }
++    public Collection<Balance> getAccountBalance(Map<String, String> input,Collection objectTypeCode) {
++        Criteria criteria = new Criteria();
++       for(String key:input.keySet()){
++           criteria.addEqualTo(key, input.get(key));
++       }
++       criteria.addIn(KFSPropertyConstants.OBJECT_TYPE_CODE, objectTypeCode);
++        Collection<Balance> balance = getPersistenceBrokerTemplate().getCollectionByQuery(QueryFactory.newQuery(Balance.class, criteria));
++        return balance;
++        
++    }
++    
++}
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/TrialBalanceDaoJdbc.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/TrialBalanceDaoJdbc.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/impl/TrialBalanceDaoJdbc.java	(revision 24806)
+@@ -0,0 +1,53 @@
++/*
++ * Copyright 2007 The Kuali Foundation
++ * 
++ * Licensed under the Educational Community License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl2.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.msu.ebsp.kfs.gl.dataaccess.impl;
++
++import java.util.List;
++import java.util.Map;
++
++import org.apache.commons.lang.StringUtils;
++import org.kuali.kfs.sys.KFSConstants;
++import org.kuali.rice.kns.dao.jdbc.PlatformAwareDaoBaseJdbc;
++
++import edu.msu.ebsp.kfs.gl.dataaccess.TrialBalanceDao;
++
++/**
++ * A class to do the database queries needed to calculate Balance By Consolidation Balance Inquiry Screen
++ */
++public class TrialBalanceDaoJdbc extends PlatformAwareDaoBaseJdbc implements TrialBalanceDao {
++    private static org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(TrialBalanceDaoJdbc.class);
++
++    public List findBalanceByFields(String selectedFiscalYear, String chartCode) {
++        List<Map<String, Object>> results = null;
++
++        StringBuilder queryBuilder = new StringBuilder();
++        queryBuilder.append("SELECT COA_CD, OBJ_CD, A1.FIN_OBJ_CD_NM , A2.FIN_OBJTYP_DBCR_CD, YTD FROM (SELECT A0.FIN_OBJECT_CD AS OBJ_CD, A0.FIN_COA_CD AS COA_CD, SUM(A0.FIN_BEG_BAL_LN_AMT + A0.ACLN_ANNL_BAL_AMT) YTD ");
++        queryBuilder.append(" FROM GL_BALANCE_T A0 WHERE A0.FIN_BALANCE_TYP_CD = '" + KFSConstants.BALANCE_TYPE_ACTUAL + "'");
++        queryBuilder.append(" AND A0.UNIV_FISCAL_YR = '" + selectedFiscalYear + "'");
++        if (!StringUtils.isBlank(chartCode)) {
++            queryBuilder.append(" AND A0.FIN_COA_CD = '" + chartCode + "'");
++        }
++        queryBuilder.append(" GROUP BY A0.FIN_COA_CD, A0.FIN_OBJECT_CD HAVING SUM(A0.FIN_BEG_BAL_LN_AMT + A0.ACLN_ANNL_BAL_AMT) <> 0 ");
++        queryBuilder.append(" ORDER BY A0.FIN_COA_CD, A0.FIN_OBJECT_CD) , CA_OBJECT_CODE_T A1, CA_OBJ_TYPE_T A2 WHERE A1.FIN_COA_CD = COA_CD AND A2.FIN_OBJ_TYP_CD=A1.FIN_OBJ_TYP_CD AND ");
++        queryBuilder.append(" A1.UNIV_FISCAL_YR = '" + selectedFiscalYear + "'");
++        queryBuilder.append(" AND A1.FIN_OBJECT_CD = OBJ_CD");
++
++        results = getSimpleJdbcTemplate().queryForList(queryBuilder.toString());
++        return results;
++    }
++
++
++}
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/TrialBalanceDao.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/TrialBalanceDao.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/TrialBalanceDao.java	(revision 24806)
+@@ -0,0 +1,34 @@
++/*
++ * Copyright 2007 The Kuali Foundation
++ * 
++ * Licensed under the Educational Community License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl2.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.msu.ebsp.kfs.gl.dataaccess;
++
++import java.util.Iterator;
++import java.util.List;
++import java.util.Map;
++
++/**
++ * An interface to methods needed to calculate Balance By Consolidation Balance inquiries to query the database
++ */
++public interface TrialBalanceDao {
++
++    /**
++     * Return the balance based on user input
++     * 
++     * @param fieldValues
++     * @return
++     */
++    List findBalanceByFields(String selectedFiscalYear, String chartCode);
++}
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/EncumbranceDao.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/EncumbranceDao.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/EncumbranceDao.java	(revision 24806)
+@@ -0,0 +1,30 @@
++/*
++ * Copyright 2005 The Kuali Foundation
++ * 
++ * Licensed under the Educational Community License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl2.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.msu.ebsp.kfs.gl.dataaccess;
++
++import java.util.Collection;
++import java.util.Map;
++
++import org.kuali.rice.kns.util.KualiDecimal;
++
++
++/**
++ * A DAO interface that declares methods needed for Encumbrances to interact with the database
++ */
++public interface EncumbranceDao extends org.kuali.kfs.gl.dataaccess.EncumbranceDao{
++    public KualiDecimal getEncumbrances(Map<String, String> input,Collection encumbranceCodes);
++   
++}
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/BalanceDao.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/BalanceDao.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/gl/dataaccess/BalanceDao.java	(revision 24806)
+@@ -0,0 +1,32 @@
++/*
++ * Copyright 2005 The Kuali Foundation
++ * 
++ * Licensed under the Educational Community License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl2.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.msu.ebsp.kfs.gl.dataaccess;
++
++import java.util.Collection;
++import java.util.Map;
++
++import org.kuali.kfs.gl.businessobject.Balance;
++
++
++
++/**
++ * The DAO interface that declares methods needed to query the database about balances
++ */
++public interface BalanceDao extends org.kuali.kfs.gl.dataaccess.BalanceDao{
++    public Collection<Balance> getAccountBalance(Map<String, String> input);
++    public Collection<Balance> getAccountBalance(Map<String, String> input,Collection objectTypeCode);
++   
++}
+Index: financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/sys/MSUKFSParameterKeyConstants.java
+===================================================================
+--- financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/sys/MSUKFSParameterKeyConstants.java	(revision 0)
++++ financial-system/kfs/trunk/work/src/edu/msu/ebsp/kfs/sys/MSUKFSParameterKeyConstants.java	(revision 24806)
+@@ -0,0 +1,35 @@
++/*
++ * Copyright 2009 The Kuali Foundation.
++ * 
++ * Licensed under the Educational Community License, Version 1.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ * http://www.opensource.org/licenses/ecl1.php
++ * 
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package edu.msu.ebsp.kfs.sys;
++
++import org.kuali.kfs.sys.KFSConstants;
++import org.kuali.kfs.sys.ParameterKeyConstants;
++import org.kuali.kfs.sys.service.impl.KfsParameterConstants;
++import org.kuali.rice.kns.service.ParameterConstants.COMPONENT;
++import org.kuali.rice.kns.service.ParameterConstants.NAMESPACE;
++
++public class MSUKFSParameterKeyConstants implements ParameterKeyConstants {
++
++    public static class GeneralLedgerSysParmeterKeys {
++	public static final String EXPENSE_OBJECT_TYPE_CODE_PARAM = "EXPENSE_OBJECT_TYPE_CODE";
++	public static final String INCOME_OBJECT_TYPE_CODE_PARAM = "INCOME_OBJECT_TYPE_CODE";
++	public static final String CASH_BUDGET_RECORD_LEVEL_PARM = "CASH_BUDGET_RECORD_LEVEL";
++	public static final String FUND_BALANCE_OBJECT_CODE_PARAM = "FUND_BALANCE_OBJECT_CODE";
++	public static final String CURRENT_ASSET_OBJECT_CODE_PARAM = "CURRENT_ASSET_OBJECT_CODE";
++	public static final String CURRENT_LIABILITY_OBJECT_CODE_PARAM = "CURRENT_LIABILITY_OBJECT_CODE";
++	public static final String ENCUMBRANCE_BALANCE_TYPE_PARAM = "ENCUMBRANCE_BALANCE_TYPE";
++    }
++}
+\ No newline at end of file
+Index: financial-system/kfs/trunk/work/web-root/WEB-INF/tags/portal/channel/main/balanceInquiries.tag
+===================================================================
+--- financial-system/kfs/trunk/work/web-root/WEB-INF/tags/portal/channel/main/balanceInquiries.tag	(revision 24805)
++++ financial-system/kfs/trunk/work/web-root/WEB-INF/tags/portal/channel/main/balanceInquiries.tag	(revision 24806)
+@@ -26,6 +26,8 @@
+ 		<li><portal:portalLink displayTitle="true" title="General Ledger Entry" url="${KFSConstants.GL_MODIFIED_INQUIRY_ACTION}?methodToCall=start&businessObjectClassName=org.kuali.kfs.gl.businessobject.Entry&docFormKey=88888888&returnLocation=portal.do&hideReturnLink=true" /></li>
+ 		<li><portal:portalLink displayTitle="true" title="General Ledger Pending Entry" url="${KFSConstants.GL_MODIFIED_INQUIRY_ACTION}?methodToCall=start&businessObjectClassName=org.kuali.kfs.sys.businessobject.GeneralLedgerPendingEntry&docFormKey=88888888&returnLocation=portal.do&hideReturnLink=true" /></li>
+ 	   	<li><portal:portalLink displayTitle="true" title="Open Encumbrances" url="${KFSConstants.GL_MODIFIED_INQUIRY_ACTION}?methodToCall=start&businessObjectClassName=org.kuali.kfs.gl.businessobject.Encumbrance&docFormKey=88888888&returnLocation=portal.do&hideReturnLink=true" /></li>
++	   	<!-- KFSI-6468 -->
++	   	<li><portal:portalLink displayTitle="true" title="Current Account Balance" url="kr/lookup.do?methodToCall=start&businessObjectClassName=edu.msu.ebsp.kfs.gl.businessobject.CurrentAccountBalance&docFormKey=88888888&returnLocation=portal.do&hideReturnLink=true" /></li>
+ 	</ul>
+ 	
+ 	<strong>Salaries &amp; Wages</strong>
